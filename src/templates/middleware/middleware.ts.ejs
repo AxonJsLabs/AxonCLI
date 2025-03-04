@@ -1,0 +1,9 @@
+import { Request, Response, nextFn } from "@axonlabs/core";
+
+const <%= middlewareName %>Middleware = async (req: Request, res: Response, next: nextFn) => {
+    next();
+}
+
+export {
+    <%= middlewareName %>Middleware
+}

@@ -1,0 +1,14 @@
+export class <%= controllerName %>Controller {
+    constructor() {}
+
+    /**
+     * 
+     * @param {import("@axonlabs/core").Request} req 
+     * @param {import("@axonlabs/core").Response} res 
+     */
+    async index(req, res) {
+        res.status(200).body({
+            message: "Hello from <%= controllerName %>Controller!"
+        });
+    }
+}

@@ -1,0 +1,11 @@
+import { Request, Response } from "@axonlabs/core";
+
+export class <%= controllerName %>Controller {
+    constructor() {}
+
+    public async index(req: Request, res: Response): Promise<void> {
+        res.status(200).body({
+            message: "Hello from <%= controllerName %>!"
+        });
+    }
+}

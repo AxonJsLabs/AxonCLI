@@ -1,0 +1,12 @@
+import { Router } from "@axonlabs/core";
+import type { Request, Response } from "@axonlabs/core";
+
+const router = Router();
+
+router.get("/", async (req: Request, res: Response) => {
+    return res.status(200).body({
+        message: "Hello World",
+    });
+});
+
+export default router;

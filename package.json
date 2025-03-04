@@ -1,0 +1,36 @@
+{
+    "name": "@axonlabs/cli",
+    "version": "0.1.0",
+    "description": "CLI tool for AxonJs projects",
+    "bin": {
+        "axon": "dist/cli.js"
+    },
+    "scripts": {
+        "build": "tsup && ts-node src/copyTemplates.ts",
+        "start": "node dist/cli.js"
+    },
+    "dependencies": {
+        "chalk": "^5.0.0",
+        "cli-table3": "^0.6.5",
+        "commander": "^13.1.0",
+        "degit": "^2.8.4",
+        "ejs": "^3.1.10",
+        "fs-extra": "^11.1.1",
+        "inquirer": "^12.4.2",
+        "ora": "^8.2.0"
+    },
+    "devDependencies": {
+        "@types/degit": "^2.8.6",
+        "@types/ejs": "^3.1.5",
+        "@types/fs-extra": "^11.0.4",
+        "@types/inquirer": "^9.0.7",
+        "@types/node": "^22.13.4",
+        "terser": "^5.39.0",
+        "ts-node": "^10.9.2",
+        "tsup": "^8.3.6",
+        "typescript": "^5.0.0"
+    },
+    "peerDependencies": {
+        "@axonlabs/core": "^0.7.3"
+    }
+}
