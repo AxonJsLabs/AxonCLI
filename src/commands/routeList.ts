@@ -43,7 +43,10 @@ const findRouteFiles = async (dir: string): Promise<string[]> => {
             const fullPath = path.join(dir, entry.name);
             if (entry.isDirectory()) {
                 files.push(...(await findRouteFiles(fullPath)));
-            } else if (entry.isFile() && /\.(route\.(js|mjs|cjs|ts))$/i.test(entry.name)) {
+            } else if (entry.isFile() && /\.(route\.(ts))$/i.test(entry.name)) {
+                console.log(chalk.yellow("⚠️  Typescript is not currently available for this command."));
+                process.exit(1);
+            } else if (entry.isFile() && /\.(route\.(js|mjs|cjs))$/i.test(entry.name)) {
                 files.push(fullPath);
             }
         }
@@ -83,7 +86,7 @@ const loadRouteObject = async (filePath: string): Promise<RouteObject> => {
 
         return { file: filePath, routes: exportedRoutes };
     } catch (err) {
-        console.error(`Error loading route ${filePath}:\n`, err);
+        // console.error(`Error loading route ${filePath}:\n`, err);
         return { file: filePath, routes: {} };
     }
 };
@@ -107,7 +110,7 @@ const routesList = async (): Promise<RouteObject[]> => {
 
         return await Promise.all(allFiles.map((file) => loadRouteObject(file)));
     } catch (err) {
-        console.error("Error loading routes:\n", err);
+        // console.error("Error loading routes:\n", err);
         return [];
     }
 };
@@ -181,7 +184,9 @@ const routeList = async () => {
     });
 
     if (routeEntries.length === 0) {
-        console.log(chalk.red("❌ No routes found."));
+        console.log(chalk.red("❌ No routes found.\n"));
+        console.log(chalk.white("If you have routes, check their path or check that dependencies are installed or not."));
+        console.log(chalk.white("You can install dependencies with command ") + chalk.cyan("npm install"));
         return;
     }
 
@@ -206,5 +211,4 @@ const routeList = async () => {
 
     console.log(table.toString());
 };
-
 export { routeList };

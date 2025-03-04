@@ -16,7 +16,8 @@ export default defineConfig({
     'inquirer',
     'ora',
     'child_process',
-    'path'
+    'path',
+    'typescript'
   ],
   loader: {
     '.ejs': 'text'

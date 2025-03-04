@@ -53,6 +53,7 @@ export async function createProject() {
     console.log(chalk.white('npm install'));
     console.log(chalk.white('npm start\n'));
     console.log(chalk.magenta('Happy coding! Thanks for using Axon 🌟❤️'));
+    process.exit(0);
   } catch (error) {
     spinner.fail('Template cloning failed.');
     console.error(error);
