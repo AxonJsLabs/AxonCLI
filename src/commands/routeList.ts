@@ -1,10 +1,19 @@
-import path from "path";
-import fs from "fs/promises";
+// libs
+import { readFileSync } from 'fs';
+// import { transformSync } from "esbuild";
+import esbuild from "esbuild";
 import { pathToFileURL } from "url";
 import { AxonRouter } from "@axonlabs/core";
-import chalk from "chalk";
-import type { ChalkInstance as Chalk } from "chalk";
+import path from "path";
+import fs from "fs/promises";
 import Table from "cli-table3";
+import chalk from "chalk";
+import { createRequire } from "module";
+
+// types
+import type { ChalkInstance as Chalk } from "chalk";
+
+// utils
 import { findProjectRoot } from "../utils/projectRoot";
 
 // Route Type Definitions
@@ -19,15 +28,40 @@ interface RouteEntry {
     file: string;
 }
 
-/**
- * Loads a JavaScript/TypeScript file dynamically
- * @param {string} filePath - The file path
- * @returns {Promise<any>} - The loaded module
- */
-async function loadFile(filePath: string): Promise<any> {
+const loadJSFile = async (filePath: string) => {
     const fileUrl = pathToFileURL(filePath).href;
     const module = await import(fileUrl);
     return module.default || module;
+}
+
+const loadTSFile = async (filePath: string) => {
+    const result = await esbuild.build({
+        entryPoints: [filePath],
+        bundle: true,
+        external: ["esbuild"],
+        platform: 'node',
+        format: 'cjs',
+        target: 'es2020',
+        write: false,
+    });
+    const code = result.outputFiles[0].text;
+    const module = { exports: {} };
+    const fn = new Function('module', 'exports', 'require', code);
+    fn(module, module.exports, require);
+    return module.exports;
+};
+
+/**
+ * Loads a JavaScript/TypeScript file dynamically
+ * @param {Array<string>} file - The file path
+ * @returns {Promise<any>} - The loaded module
+ */
+async function loadFile(file: Array<string>): Promise<any> {
+    if (file[1] === "ts") {
+        return await loadTSFile(file[0]);
+    } else {
+        return await loadJSFile(file[0]);
+    }
 }
 
 /**
@@ -35,8 +69,8 @@ async function loadFile(filePath: string): Promise<any> {
  * @param {string} dir - Directory to search
  * @returns {Promise<string[]>} - Array of file paths
  */
-const findRouteFiles = async (dir: string): Promise<string[]> => {
-    let files: string[] = [];
+const findRouteFiles = async (dir: string): Promise<Array<string>[]> => {
+    let files: Array<string>[] = [];
     try {
         const entries = await fs.readdir(dir, { withFileTypes: true });
         for (const entry of entries) {
@@ -44,10 +78,9 @@ const findRouteFiles = async (dir: string): Promise<string[]> => {
             if (entry.isDirectory()) {
                 files.push(...(await findRouteFiles(fullPath)));
             } else if (entry.isFile() && /\.(route\.(ts))$/i.test(entry.name)) {
-                console.log(chalk.yellow("⚠️  Typescript is not currently available for this command."));
-                process.exit(1);
+                files.push([fullPath, "ts"])
             } else if (entry.isFile() && /\.(route\.(js|mjs|cjs))$/i.test(entry.name)) {
-                files.push(fullPath);
+                files.push([fullPath, "js"]);
             }
         }
     } catch {
@@ -61,18 +94,19 @@ const findRouteFiles = async (dir: string): Promise<string[]> => {
  * @param {string} filePath - The file path
  * @returns {Promise<RouteObject>} - Object containing file and its routes
  */
-const loadRouteObject = async (filePath: string): Promise<RouteObject> => {
+const loadRouteObject = async (file: Array<string>): Promise<RouteObject> => {
     try {
-        const router = await loadFile(filePath);
+        const router = await loadFile(file);
+
         let exportedRoutes: Record<string, any> = {};
 
         if (typeof router !== "object" || router === null) {
-            return { file: filePath, routes: {} };
+            return { file: file[0], routes: {} };
         }
 
         const proto = Object.getPrototypeOf(router);
         if (proto && proto.constructor.name === "AxonRouter") {
-            return { file: filePath, routes: router.exportRoutes() as any };
+            return { file: file[0], routes: router.exportRoutes() as any };
         }
 
         Object.values(router).forEach((item) => {
@@ -84,10 +118,10 @@ const loadRouteObject = async (filePath: string): Promise<RouteObject> => {
             }
         });
 
-        return { file: filePath, routes: exportedRoutes };
+        return { file: file[0], routes: exportedRoutes };
     } catch (err) {
-        // console.error(`Error loading route ${filePath}:\n`, err);
-        return { file: filePath, routes: {} };
+        // console.error(`Error loading route ${file[0]}:\n`, err);
+        return { file: file[0], routes: {} };
     }
 };
 
@@ -101,7 +135,7 @@ const routesList = async (): Promise<RouteObject[]> => {
         const currentDir = process.cwd();
         const projectRoot = findProjectRoot(currentDir);
 
-        let allFiles: string[] = [];
+        let allFiles: Array<string>[] = [];
 
         for (const baseDir of baseDirs) {
             const foundFiles = await findRouteFiles(path.resolve(projectRoot, baseDir));
@@ -174,6 +208,10 @@ const routeList = async () => {
     routeFileObjects.forEach(({ file, routes }) => {
         Object.keys(routes).forEach((method) => {
             Object.keys(routes[method]).forEach((routePath) => {
+                if (routePath === "") {
+                    routePath = "/"
+                }
+                
                 routeEntries.push({
                     method,
                     route: routePath,
