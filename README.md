@@ -3,13 +3,38 @@
 
 A CLI tool for AxonJs projects to give programmer better experience of coding with AxonJs.
 
+## Badges
+
+<p align="center">
+    <a href="https://www.npmjs.com/package/@axonlabs/cli">
+        <img alt="@axonlabs/cli Downloads" src="https://img.shields.io/npm/dy/%40axonlabs%2Fcli?label=@axonlabs/cli Downloads&color=%235304db">
+    </a>
+</p>
+<p align="center">
+    <a href="https://www.npmjs.com/package/@axonlabs/cli">
+        <img alt="NPM Version" src="https://img.shields.io/npm/v/%40axonlabs%2Fcli?label=NPM%20release&color=%2304dba9">
+    </a>
+    <a href="#">
+        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/axonjslabs/AxonCLI/npm-publish.yml">
+    </a>
+</p>
+<p align="center">
+    <a href="#">
+        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/axonjslabs/AxonCLI?color=%23be04db">
+    </a>
+    <a href="#">
+        <img alt="npm bundle size" src="https://img.shields.io/bundlephobia/min/%40axonlabs%2Fcli">
+    </a>
+</p>
+
+
 
 ## Installation
 
 Install Axon CLI with npm
 
 ```bash
-  npm install -g @axonlabs/cli
+npm install -g @axonlabs/cli
 ```
 
 After installing Axon CLI as a global package, you can start using Axon CLI with command `axon`.
